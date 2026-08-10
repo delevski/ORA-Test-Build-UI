@@ -1,5 +1,10 @@
 export type OraImage = { src: string; alt: string };
 
+// raw <img> output (static export) doesn't get basePath applied by Next,
+// so the manifest bakes it in — set by next.config.ts for GitHub Pages
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const img = (file: string, alt: string): OraImage => ({ src: `${BASE}/images/${file}`, alt });
+
 export type ImageKey =
   | "hero" | "approach" | "approachMid" | "arrival"
   | "interiorA" | "interiorB" | "terrace" | "salon"
@@ -7,20 +12,20 @@ export type ImageKey =
   | "pool" | "cityNight" | "lobby" | "golden";
 
 export const IMAGES: Record<ImageKey, OraImage> = {
-  hero: { src: "/images/hero.jpg", alt: "Tower rising above the sea at dusk" },
-  approach: { src: "/images/approach.jpg", alt: "The city from above at night" },
-  approachMid: { src: "/images/approach-mid.jpg", alt: "Tower facade detail" },
-  arrival: { src: "/images/arrival.jpg", alt: "Private elevator arrival hall" },
-  interiorA: { src: "/images/interior-a.jpg", alt: "Living space in stone and glass" },
-  interiorB: { src: "/images/interior-b.jpg", alt: "Interior with endless horizon" },
-  terrace: { src: "/images/terrace.jpg", alt: "Terrace over the Mediterranean" },
-  salon: { src: "/images/salon.jpg", alt: "The grand salon" },
-  suite: { src: "/images/suite.jpg", alt: "The primary suite" },
-  spa: { src: "/images/spa.jpg", alt: "The stone spa" },
-  wine: { src: "/images/wine.jpg", alt: "The wine lounge" },
-  kitchen: { src: "/images/kitchen.jpg", alt: "The chef's kitchen" },
-  pool: { src: "/images/pool.jpg", alt: "The infinity pool" },
-  cityNight: { src: "/images/city-night.jpg", alt: "City lights at night" },
-  lobby: { src: "/images/lobby.jpg", alt: "The private lobby" },
-  golden: { src: "/images/golden.jpg", alt: "Golden hour over the sea" },
+  hero: img("hero.jpg", "Tower rising above the sea at dusk"),
+  approach: img("approach.jpg", "The city from above at night"),
+  approachMid: img("approach-mid.jpg", "Tower facade detail"),
+  arrival: img("arrival.jpg", "Private elevator arrival hall"),
+  interiorA: img("interior-a.jpg", "Living space in stone and glass"),
+  interiorB: img("interior-b.jpg", "Interior with endless horizon"),
+  terrace: img("terrace.jpg", "Terrace over the Mediterranean"),
+  salon: img("salon.jpg", "The grand salon"),
+  suite: img("suite.jpg", "The primary suite"),
+  spa: img("spa.jpg", "The stone spa"),
+  wine: img("wine.jpg", "The wine lounge"),
+  kitchen: img("kitchen.jpg", "The chef's kitchen"),
+  pool: img("pool.jpg", "The infinity pool"),
+  cityNight: img("city-night.jpg", "City lights at night"),
+  lobby: img("lobby.jpg", "The private lobby"),
+  golden: img("golden.jpg", "Golden hour over the sea"),
 };

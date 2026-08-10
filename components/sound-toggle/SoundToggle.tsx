@@ -14,12 +14,15 @@ export default function SoundToggle() {
   const [on, setOn] = useState(false);
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
+  const washRef = useRef<GainNode | null>(null);
+  const deepFilterRef = useRef<BiquadFilterNode | null>(null);
+  const waveTimer = useRef<number | null>(null);
 
   const build = () => {
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new Ctx();
 
-    // 12s of brown noise, looped (loop point is inaudible under the filter)
+    // 12s of brown noise, looped (loop point is inaudible under the filters)
     const seconds = 12;
     const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -29,40 +32,66 @@ export default function SoundToggle() {
       last = (last + 0.02 * white) / 1.02;
       data[i] = last * 3.5;
     }
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    src.loop = true;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 420;
-    filter.Q.value = 0.6;
-
-    // slow swells: one LFO breathes the filter, a second breathes the level
-    const lfo1 = ctx.createOscillator();
-    lfo1.frequency.value = 0.07;
-    const lfo1Gain = ctx.createGain();
-    lfo1Gain.gain.value = 160;
-    lfo1.connect(lfo1Gain).connect(filter.frequency);
-
-    const swell = ctx.createGain();
-    swell.gain.value = 0.6;
-    const lfo2 = ctx.createOscillator();
-    lfo2.frequency.value = 0.045;
-    const lfo2Gain = ctx.createGain();
-    lfo2Gain.gain.value = 0.3;
-    lfo2.connect(lfo2Gain).connect(swell.gain);
 
     const master = ctx.createGain();
     master.gain.value = 0;
+    master.connect(ctx.destination);
 
-    src.connect(filter).connect(swell).connect(master).connect(ctx.destination);
-    src.start();
-    lfo1.start();
-    lfo2.start();
+    // layer 1 — constant distant rumble (very low, sits under everything)
+    const deepSrc = ctx.createBufferSource();
+    deepSrc.buffer = buffer;
+    deepSrc.loop = true;
+    const deep = ctx.createBiquadFilter();
+    deep.type = "lowpass";
+    deep.frequency.value = 200;
+    deep.Q.value = 0.4;
+    const deepGain = ctx.createGain();
+    deepGain.gain.value = 0.35;
+    deepSrc.connect(deep).connect(deepGain).connect(master);
+    deepSrc.start();
+
+    // layer 2 — the "wash": brighter band that only opens when a wave breaks
+    const washSrc = ctx.createBufferSource();
+    washSrc.buffer = buffer;
+    washSrc.loop = true;
+    washSrc.playbackRate.value = 0.85; // decorrelate from layer 1
+    const band = ctx.createBiquadFilter();
+    band.type = "bandpass";
+    band.frequency.value = 750;
+    band.Q.value = 0.45;
+    const wash = ctx.createGain();
+    wash.gain.value = 0;
+    washSrc.connect(band).connect(wash).connect(master);
+    washSrc.start();
 
     ctxRef.current = ctx;
     masterRef.current = master;
+    washRef.current = wash;
+    deepFilterRef.current = deep;
+  };
+
+  // each wave: slow build, break, long hiss-out — randomized period so it never loops
+  const scheduleWave = () => {
+    const ctx = ctxRef.current;
+    const wash = washRef.current;
+    const deep = deepFilterRef.current;
+    if (!ctx || !wash || !deep) return;
+    const t = ctx.currentTime;
+    const attack = 1.6 + Math.random() * 1.2;
+    const release = 3.2 + Math.random() * 1.8;
+    const peak = 0.4 + Math.random() * 0.35;
+
+    wash.gain.cancelScheduledValues(t);
+    wash.gain.setValueAtTime(Math.max(wash.gain.value, 0.02), t);
+    wash.gain.linearRampToValueAtTime(peak, t + attack);
+    wash.gain.exponentialRampToValueAtTime(0.02, t + attack + release);
+
+    deep.frequency.cancelScheduledValues(t);
+    deep.frequency.setValueAtTime(deep.frequency.value, t);
+    deep.frequency.linearRampToValueAtTime(340, t + attack);
+    deep.frequency.linearRampToValueAtTime(200, t + attack + release);
+
+    waveTimer.current = window.setTimeout(scheduleWave, (attack + release + 1 + Math.random() * 3) * 1000);
   };
 
   const toggle = () => {
@@ -76,8 +105,10 @@ export default function SoundToggle() {
       void ctx.resume();
       master.gain.cancelScheduledValues(ctx.currentTime);
       master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-      master.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 2);
+      master.gain.linearRampToValueAtTime(0.09, ctx.currentTime + 2);
+      scheduleWave();
     } else {
+      if (waveTimer.current) window.clearTimeout(waveTimer.current);
       master.gain.cancelScheduledValues(ctx.currentTime);
       master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
       master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
@@ -85,7 +116,13 @@ export default function SoundToggle() {
     }
   };
 
-  useEffect(() => () => void ctxRef.current?.close(), []);
+  useEffect(
+    () => () => {
+      if (waveTimer.current) window.clearTimeout(waveTimer.current);
+      void ctxRef.current?.close();
+    },
+    []
+  );
 
   return (
     <button
