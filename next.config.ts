@@ -5,6 +5,8 @@ import type { NextConfig } from "next";
 const isPages = process.env.GITHUB_PAGES === "true";
 
 const nextConfig: NextConfig = {
+  // raw <video>/<a> tags don't get basePath automatically — expose it
+  env: { NEXT_PUBLIC_BASE_PATH: isPages ? "/ORA-Test-Build-UI" : "" },
   ...(isPages && {
     output: "export" as const,
     basePath: "/ORA-Test-Build-UI",
