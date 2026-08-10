@@ -2,127 +2,80 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const AMBIENCE_SRC = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/audio/ambience.mp3`;
+const TARGET_VOLUME = 0.55;
+
 /**
- * Ambient sound toggle (same behavior as the reference: off by default,
- * looped ambience with a gentle fade when enabled).
- *
- * The ambience itself is synthesized with the Web Audio API — filtered
- * brown noise with two slow LFO swells reads as distant surf below the
- * terrace. No audio asset is shipped and nothing repeats audibly.
+ * Looped sea ambience, on by default. Browsers block un-gestured audio, so
+ * if the initial play() is rejected the sound arms itself and starts on the
+ * first interaction (pointer, key or first scroll) instead.
  */
 export default function SoundToggle() {
-  const [on, setOn] = useState(false);
-  const ctxRef = useRef<AudioContext | null>(null);
-  const masterRef = useRef<GainNode | null>(null);
-  const washRef = useRef<GainNode | null>(null);
-  const deepFilterRef = useRef<BiquadFilterNode | null>(null);
-  const waveTimer = useRef<number | null>(null);
+  const [on, setOn] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fadeRaf = useRef(0);
 
-  const build = () => {
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
-
-    // 12s of brown noise, looped (loop point is inaudible under the filters)
-    const seconds = 12;
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < data.length; i++) {
-      const white = Math.random() * 2 - 1;
-      last = (last + 0.02 * white) / 1.02;
-      data[i] = last * 3.5;
-    }
-
-    const master = ctx.createGain();
-    master.gain.value = 0;
-    master.connect(ctx.destination);
-
-    // layer 1 — constant distant rumble (very low, sits under everything)
-    const deepSrc = ctx.createBufferSource();
-    deepSrc.buffer = buffer;
-    deepSrc.loop = true;
-    const deep = ctx.createBiquadFilter();
-    deep.type = "lowpass";
-    deep.frequency.value = 200;
-    deep.Q.value = 0.4;
-    const deepGain = ctx.createGain();
-    deepGain.gain.value = 0.35;
-    deepSrc.connect(deep).connect(deepGain).connect(master);
-    deepSrc.start();
-
-    // layer 2 — the "wash": brighter band that only opens when a wave breaks
-    const washSrc = ctx.createBufferSource();
-    washSrc.buffer = buffer;
-    washSrc.loop = true;
-    washSrc.playbackRate.value = 0.85; // decorrelate from layer 1
-    const band = ctx.createBiquadFilter();
-    band.type = "bandpass";
-    band.frequency.value = 750;
-    band.Q.value = 0.45;
-    const wash = ctx.createGain();
-    wash.gain.value = 0;
-    washSrc.connect(band).connect(wash).connect(master);
-    washSrc.start();
-
-    ctxRef.current = ctx;
-    masterRef.current = master;
-    washRef.current = wash;
-    deepFilterRef.current = deep;
+  const fadeTo = (target: number, ms: number, then?: () => void) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    cancelAnimationFrame(fadeRaf.current);
+    const from = audio.volume;
+    const start = performance.now();
+    const step = (now: number) => {
+      const p = Math.min(1, (now - start) / ms);
+      audio.volume = from + (target - from) * p;
+      if (p < 1) fadeRaf.current = requestAnimationFrame(step);
+      else then?.();
+    };
+    fadeRaf.current = requestAnimationFrame(step);
   };
 
-  // each wave: slow build, break, long hiss-out — randomized period so it never loops
-  const scheduleWave = () => {
-    const ctx = ctxRef.current;
-    const wash = washRef.current;
-    const deep = deepFilterRef.current;
-    if (!ctx || !wash || !deep) return;
-    const t = ctx.currentTime;
-    const attack = 1.6 + Math.random() * 1.2;
-    const release = 3.2 + Math.random() * 1.8;
-    const peak = 0.4 + Math.random() * 0.35;
-
-    wash.gain.cancelScheduledValues(t);
-    wash.gain.setValueAtTime(Math.max(wash.gain.value, 0.02), t);
-    wash.gain.linearRampToValueAtTime(peak, t + attack);
-    wash.gain.exponentialRampToValueAtTime(0.02, t + attack + release);
-
-    deep.frequency.cancelScheduledValues(t);
-    deep.frequency.setValueAtTime(deep.frequency.value, t);
-    deep.frequency.linearRampToValueAtTime(340, t + attack);
-    deep.frequency.linearRampToValueAtTime(200, t + attack + release);
-
-    waveTimer.current = window.setTimeout(scheduleWave, (attack + release + 1 + Math.random() * 3) * 1000);
+  const start = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 0;
+    void audio
+      .play()
+      .then(() => fadeTo(TARGET_VOLUME, 1500))
+      .catch(() => {
+        // autoplay blocked: begin on the first user gesture
+        const arm = () => {
+          audio.volume = 0;
+          void audio.play().then(() => fadeTo(TARGET_VOLUME, 1500)).catch(() => {});
+        };
+        window.addEventListener("pointerdown", arm, { once: true });
+        window.addEventListener("keydown", arm, { once: true });
+        window.addEventListener("wheel", arm, { once: true });
+        window.addEventListener("touchstart", arm, { once: true });
+      });
   };
+
+  useEffect(() => {
+    const audio = new Audio(AMBIENCE_SRC);
+    audio.loop = true;
+    audio.preload = "auto";
+    audioRef.current = audio;
+    start();
+    return () => {
+      cancelAnimationFrame(fadeRaf.current);
+      audio.pause();
+      audio.src = "";
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggle = () => {
     const next = !on;
     setOn(next);
-    if (next && !ctxRef.current) build();
-    const ctx = ctxRef.current;
-    const master = masterRef.current;
-    if (!ctx || !master) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     if (next) {
-      void ctx.resume();
-      master.gain.cancelScheduledValues(ctx.currentTime);
-      master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-      master.gain.linearRampToValueAtTime(0.09, ctx.currentTime + 2);
-      scheduleWave();
+      if (audio.paused) start();
+      else fadeTo(TARGET_VOLUME, 800);
     } else {
-      if (waveTimer.current) window.clearTimeout(waveTimer.current);
-      master.gain.cancelScheduledValues(ctx.currentTime);
-      master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-      master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
-      window.setTimeout(() => void ctxRef.current?.suspend(), 900);
+      fadeTo(0, 600, () => audio.pause());
     }
   };
-
-  useEffect(
-    () => () => {
-      if (waveTimer.current) window.clearTimeout(waveTimer.current);
-      void ctxRef.current?.close();
-    },
-    []
-  );
 
   return (
     <button
