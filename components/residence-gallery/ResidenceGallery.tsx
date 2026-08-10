@@ -67,7 +67,7 @@ export default function ResidenceGallery() {
   };
 
   return (
-    <section ref={root} data-theme="dark" className="relative bg-ink text-bone md:h-[280vh]">
+    <section ref={root} data-theme="dark" className="relative bg-ink text-bone md:motion-safe:h-[280vh]">
       <div className="flex flex-col gap-10 px-6 py-24 md:sticky md:top-0 md:h-screen md:flex-row md:items-center md:gap-0 md:px-16 md:py-0">
         <div className="md:w-[38%]" onMouseLeave={() => (hovering.current = false)}>
           <p className="meta text-brass">THE RESIDENCE</p>

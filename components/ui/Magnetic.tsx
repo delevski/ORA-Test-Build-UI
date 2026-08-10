@@ -18,6 +18,7 @@ export default function Magnetic({
   useGSAP(
     () => {
       if (!fine || !root.current) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const el = root.current;
       const xTo = gsap.quickTo(el, "x", { duration: 0.4, ease: "power3.out" });
       const yTo = gsap.quickTo(el, "y", { duration: 0.4, ease: "power3.out" });

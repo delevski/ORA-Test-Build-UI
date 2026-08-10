@@ -20,7 +20,7 @@ export default function Navigation() {
     () => {
       const nav = root.current!;
       // theme flipping: watch every themed section
-      document.querySelectorAll<HTMLElement>("[data-theme]").forEach((sec) => {
+      document.querySelectorAll<HTMLElement>("section[data-theme], footer[data-theme]").forEach((sec) => {
         ScrollTrigger.create({
           trigger: sec,
           start: "top 48px",
@@ -49,7 +49,7 @@ export default function Navigation() {
     const target = document.querySelector(href);
     if (!target) return;
     if (lenis) lenis.scrollTo(target as HTMLElement, { duration: 1.6 });
-    else (target as HTMLElement).scrollIntoView({ behavior: "smooth" });
+    else (target as HTMLElement).scrollIntoView({ behavior: "auto" });
   };
 
   return (

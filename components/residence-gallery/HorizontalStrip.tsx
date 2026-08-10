@@ -40,9 +40,9 @@ export default function HorizontalStrip() {
   );
 
   return (
-    <section ref={root} id="location" data-theme="dark" className="relative bg-ink text-bone md:h-[300vh]">
-      <div className="md:sticky md:top-0 md:h-screen md:overflow-hidden">
-        <div className="js-track flex flex-col gap-6 px-6 py-16 will-change-transform md:h-screen md:w-max md:flex-row md:items-center md:gap-10 md:px-16 md:py-0">
+    <section ref={root} id="location" data-theme="dark" className="relative bg-ink text-bone md:motion-safe:h-[300vh]">
+      <div className="md:motion-safe:sticky md:motion-safe:top-0 md:motion-safe:h-screen md:motion-safe:overflow-hidden">
+        <div className="js-track flex flex-col gap-6 px-6 py-16 will-change-transform md:motion-safe:h-screen md:motion-safe:w-max md:motion-safe:flex-row md:motion-safe:items-center md:motion-safe:gap-10 md:motion-safe:px-16 md:motion-safe:py-0">
           <div className="shrink-0 md:mr-10 md:w-[30vw]">
             <p className="meta text-brass">FROM THE STREET TO THE SKY</p>
             <h2 className="display-md mt-6">One movement, sixty floors.</h2>

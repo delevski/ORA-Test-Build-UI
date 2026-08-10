@@ -46,7 +46,7 @@ export default function DayTimeline() {
   );
 
   return (
-    <section ref={root} data-theme="dark" className="relative h-[500vh] bg-ink text-bone max-md:h-[320vh]">
+    <section ref={root} data-theme="dark" className="relative h-screen bg-ink text-bone motion-safe:h-[500vh] motion-safe:max-md:h-[320vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
         {MOMENTS.map((m, i) => (
           <div key={m.time} className="js-scene absolute inset-0 opacity-0 will-change-transform">
