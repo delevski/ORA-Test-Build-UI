@@ -9,6 +9,7 @@ import ResidenceGallery from "@/components/residence-gallery/ResidenceGallery";
 import HorizontalStrip from "@/components/residence-gallery/HorizontalStrip";
 import BuildingMarquee from "@/components/building-marquee/BuildingMarquee";
 import RibbonMarquee from "@/components/ribbon-marquee/RibbonMarquee";
+import DayTimeline from "@/components/day-timeline/DayTimeline";
 import { IMAGES } from "@/lib/images";
 
 export default function Home() {
@@ -43,6 +44,7 @@ export default function Home() {
       <HorizontalStrip />
       <BuildingMarquee />
       <RibbonMarquee />
+      <DayTimeline />
       <div className="h-screen" />
     </main>
   );
