@@ -11,6 +11,8 @@ import BuildingMarquee from "@/components/building-marquee/BuildingMarquee";
 import RibbonMarquee from "@/components/ribbon-marquee/RibbonMarquee";
 import DayTimeline from "@/components/day-timeline/DayTimeline";
 import Amenities from "@/components/amenities/Amenities";
+import FinalCta from "@/components/final-cta/FinalCta";
+import Footer from "@/components/footer/Footer";
 import CustomCursor from "@/components/custom-cursor/CustomCursor";
 import { IMAGES } from "@/lib/images";
 
@@ -48,7 +50,8 @@ export default function Home() {
       <RibbonMarquee />
       <DayTimeline />
       <Amenities />
-      <div className="h-screen" />
+      <FinalCta />
+      <Footer />
       <CustomCursor />
     </main>
   );
