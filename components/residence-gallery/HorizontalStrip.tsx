@@ -48,7 +48,7 @@ export default function HorizontalStrip() {
             <h2 className="display-md mt-6">One movement, sixty floors.</h2>
           </div>
           {FRAMES.map((f) => (
-            <figure key={f.label} className="relative shrink-0 overflow-hidden md:h-[64vh] md:w-[44vw]" data-cursor="view">
+            <figure key={f.label} className="relative shrink-0 overflow-hidden md:h-[74vh] md:w-[48vw]" data-cursor="view">
               <div className="relative aspect-[16/10] md:h-full md:w-full">
                 <Image src={f.image.src} alt={f.image.alt} fill sizes="(max-width: 768px) 100vw, 44vw" className="object-cover" />
               </div>

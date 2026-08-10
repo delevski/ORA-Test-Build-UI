@@ -56,7 +56,9 @@ export default function CinematicScene(props: CinematicSceneProps) {
             break;
 
           case "vertical-mask":
-            tl.fromTo(q(".js-frame"), { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.35, ease: "none" }, 0)
+            // starts as a visible letterboxed frame (never a fully clipped black
+            // viewport) and expands to full bleed during the first part of the pin
+            tl.fromTo(q(".js-frame"), { clipPath: "inset(16% 10% 16% 10%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.35, ease: "none" }, 0)
               .fromTo(q(".js-imgA"), { scale: 1.2 }, { scale: 1, duration: 0.55, ease: "none" }, 0)
               .to(q(".js-imgA"), { scale: 1.05, duration: 0.45, ease: "none" }, 0.55);
             heading();
@@ -77,7 +79,7 @@ export default function CinematicScene(props: CinematicSceneProps) {
             break;
 
           case "slide-reveal":
-            tl.fromTo(q(".js-frame"), { xPercent: 24 * k, clipPath: "inset(0% 0% 0% 100%)" }, { xPercent: 0, clipPath: "inset(0% 0% 0% 0%)", duration: 0.4, ease: "none" }, 0)
+            tl.fromTo(q(".js-frame"), { xPercent: 24 * k, clipPath: "inset(10% 55% 10% 0%)" }, { xPercent: 0, clipPath: "inset(0% 0% 0% 0%)", duration: 0.4, ease: "none" }, 0)
               .fromTo(q(".js-imgA"), { xPercent: -14 * k, scale: 1.15 }, { xPercent: 0, scale: 1, duration: 0.55, ease: "none" }, 0);
             heading();
             break;

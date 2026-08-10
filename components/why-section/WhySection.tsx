@@ -46,15 +46,17 @@ export default function WhySection() {
         gsap.utils.toArray<HTMLElement>(".js-entry", root.current).forEach((entry) => {
           gsap.fromTo(
             entry.querySelector(".js-photo"),
-            { clipPath: "inset(12% 8% 12% 8%)", scale: 1.12 },
+            { clipPath: "inset(8% 6% 8% 6%)", scale: 1.1 },
             {
-              clipPath: "inset(0% 0% 0% 0%)", scale: 1, duration: 1.4, ease: "power3.out",
-              scrollTrigger: { trigger: entry, start: "top 70%", once: true },
+              clipPath: "inset(0% 0% 0% 0%)", scale: 1, duration: 1, ease: "power3.out",
+              scrollTrigger: { trigger: entry, start: "top 85%", once: true },
             }
           );
+          // fire early (photo is tall, text sits below it) and keep the tween
+          // short so fast flick-scrolling can't catch text half-transparent
           gsap.from(entry.querySelectorAll(".js-text"), {
-            y: 40, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out",
-            scrollTrigger: { trigger: entry, start: "top 65%", once: true },
+            y: 28, opacity: 0, stagger: 0.07, duration: 0.7, ease: "power3.out",
+            scrollTrigger: { trigger: entry, start: "top 80%", once: true },
           });
         });
 
