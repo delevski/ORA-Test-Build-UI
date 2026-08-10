@@ -59,6 +59,8 @@ export default function WhySection() {
         });
 
         // desktop mouse-follow tilt (skipped on mobile and reduced motion)
+        const listeners: Array<{ el: HTMLElement; move: (e: MouseEvent) => void; leave: () => void }> = [];
+
         if (fine && (c.desktop || c.mobile)) {
           gsap.utils.toArray<HTMLElement>(".js-photo", root.current).forEach((photo) => {
             const xTo = gsap.quickTo(photo.querySelector("img"), "x", { duration: 0.6, ease: "power3.out" });
@@ -69,10 +71,19 @@ export default function WhySection() {
               yTo(((e.clientY - r.top) / r.height - 0.5) * 20);
             };
             const leave = () => { xTo(0); yTo(0); };
+            listeners.push({ el: photo, move, leave });
             photo.addEventListener("mousemove", move);
             photo.addEventListener("mouseleave", leave);
           });
         }
+
+        // return cleanup function for GSAP to call on re-fire/revert
+        return () => {
+          listeners.forEach(({ el, move, leave }) => {
+            el.removeEventListener("mousemove", move);
+            el.removeEventListener("mouseleave", leave);
+          });
+        };
       });
     },
     { scope: root, dependencies: [fine] }
