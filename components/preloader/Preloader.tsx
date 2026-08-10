@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/gsap";
+import { gsap, MM } from "@/lib/gsap";
 
 export default function Preloader() {
   const root = useRef<HTMLDivElement>(null);
@@ -11,6 +11,14 @@ export default function Preloader() {
     () => {
       const q = gsap.utils.selector(root);
       const html = document.documentElement;
+
+      if (window.matchMedia(MM.reduced).matches) {
+        // reduced motion: skip the ~3s animated count straight to reveal
+        window.dispatchEvent(new CustomEvent("ora:reveal"));
+        gsap.set(root.current, { display: "none" });
+        return;
+      }
+
       html.classList.add("overflow-hidden");
 
       const counter = { v: 0 };

@@ -76,7 +76,8 @@ export default function ResidenceGallery() {
               <li key={r.name}>
                 <button
                   onMouseEnter={() => hover(i)}
-                  className="js-label group text-left font-display text-3xl font-light opacity-40 transition-opacity duration-500 hover:!opacity-100 md:text-5xl"
+                  onClick={() => hover(i)}
+                  className="js-label group py-2 text-left font-display text-3xl font-light opacity-40 transition-opacity duration-500 hover:!opacity-100 md:text-5xl"
                   data-cursor="view"
                 >
                   {r.name}
