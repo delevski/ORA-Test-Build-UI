@@ -7,21 +7,21 @@ import { gsap, MM } from "@/lib/gsap";
 import { IMAGES, type OraImage } from "@/lib/images";
 import { useIsFinePointer } from "@/hooks/useIsFinePointer";
 
-const REASONS: { n: string; title: string; copy: string; image: OraImage; align: string }[] = [
+const REASONS: { n: string; title: string; copy: string; image: OraImage; reverse: boolean }[] = [
   {
     n: "01", title: "Above Everything",
     copy: "Sixty floors over the shoreline — the highest private address on the coast, where the city becomes a field of light beneath you.",
-    image: IMAGES.cityNight, align: "md:ml-0 md:w-[52%]",
+    image: IMAGES.cityNight, reverse: false,
   },
   {
     n: "02", title: "Crafted in Stone",
     copy: "Limestone, travertine and smoked oak — natural materials composed by hand, selected to age with the sea air.",
-    image: IMAGES.interiorB, align: "md:ml-auto md:w-[46%]",
+    image: IMAGES.interiorB, reverse: true,
   },
   {
     n: "03", title: "Entirely Private",
     copy: "A biometric elevator, one residence per floor, and a concierge who never asks twice.",
-    image: IMAGES.lobby, align: "md:ml-[18%] md:w-[48%]",
+    image: IMAGES.lobby, reverse: false,
   },
 ];
 
@@ -88,29 +88,33 @@ export default function WhySection() {
         };
       });
     },
-    { scope: root, dependencies: [fine] }
+    // revertOnUpdate: when `fine` flips after mount the whole context is
+    // reverted before re-running — otherwise duplicate from-tweens lock the
+    // text at a partial opacity captured mid-animation
+    { scope: root, dependencies: [fine], revertOnUpdate: true }
   );
 
   return (
-    <section ref={root} data-theme="light" className="bg-bone pb-40 pt-10 text-ink md:pb-56">
+    <section ref={root} data-theme="light" className="bg-bone pb-24 pt-10 text-ink md:pb-32">
       <div className="px-6 md:px-16">
         <p className="meta text-ink/50">WHY ORA</p>
         <h2 className="display-lg mt-6 max-w-[16ch]">
           Three reasons to <em className="font-display italic">never look down</em>
         </h2>
       </div>
-      <div className="mt-28 flex flex-col gap-32 px-6 md:gap-48 md:px-16">
+      <div className="mt-14 flex flex-col gap-16 px-6 md:mt-20 md:gap-24 md:px-16">
         {REASONS.map((r) => (
-          <article key={r.n} className={`js-entry w-full ${r.align}`}>
-            <div className="js-photo relative aspect-[4/3] overflow-hidden" data-cursor="grow">
-              <Image src={r.image.src} alt={r.image.alt} fill sizes="(max-width: 768px) 100vw, 50vw" className="scale-[1.06] object-cover will-change-transform" />
+          <article
+            key={r.n}
+            className={`js-entry flex w-full flex-col gap-6 md:items-center md:gap-16 ${r.reverse ? "md:flex-row-reverse" : "md:flex-row"}`}
+          >
+            <div className="js-photo relative aspect-[4/3] w-full overflow-hidden md:w-[58%]" data-cursor="grow">
+              <Image src={r.image.src} alt={r.image.alt} fill sizes="(max-width: 768px) 100vw, 58vw" className="scale-[1.06] object-cover will-change-transform" />
             </div>
-            <div className="mt-8 flex items-baseline gap-6">
+            <div className="md:w-[42%]">
               <span className="js-text font-display text-5xl font-light text-brass">{r.n}</span>
-              <div>
-                <h3 className="js-text display-md">{r.title}</h3>
-                <p className="js-text mt-4 max-w-md text-sm leading-relaxed text-ink/60">{r.copy}</p>
-              </div>
+              <h3 className="js-text display-md mt-4">{r.title}</h3>
+              <p className="js-text mt-5 max-w-md text-sm leading-relaxed text-ink/60">{r.copy}</p>
             </div>
           </article>
         ))}

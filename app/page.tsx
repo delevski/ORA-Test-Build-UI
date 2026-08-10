@@ -13,6 +13,7 @@ import DayTimeline from "@/components/day-timeline/DayTimeline";
 import Amenities from "@/components/amenities/Amenities";
 import FinalCta from "@/components/final-cta/FinalCta";
 import Footer from "@/components/footer/Footer";
+import SoundToggle from "@/components/sound-toggle/SoundToggle";
 import CustomCursor from "@/components/custom-cursor/CustomCursor";
 import { IMAGES } from "@/lib/images";
 
@@ -52,6 +53,7 @@ export default function Home() {
       <Amenities />
       <FinalCta />
       <Footer />
+      <SoundToggle />
       <CustomCursor />
     </main>
   );
