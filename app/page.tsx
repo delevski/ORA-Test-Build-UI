@@ -3,6 +3,7 @@ import Navigation from "@/components/navigation/Navigation";
 import Hero from "@/components/hero/Hero";
 import CinematicScene from "@/components/cinematic-scene/CinematicScene";
 import { PlantSilhouette, RailingSilhouette } from "@/components/cinematic-scene/foregrounds";
+import Stats from "@/components/stats/Stats";
 import { IMAGES } from "@/lib/images";
 
 export default function Home() {
@@ -31,6 +32,7 @@ export default function Home() {
         foreground={<RailingSilhouette className="absolute bottom-0 h-full w-full" />}
         variant="parallax-depth"
       />
+      <Stats />
       <div className="h-screen" />
     </main>
   );
