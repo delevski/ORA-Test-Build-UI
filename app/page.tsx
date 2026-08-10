@@ -47,9 +47,9 @@ export default function Home() {
       <BuildingMarquee />
       <RibbonMarquee />
       <DayTimeline />
+      <Amenities />
       <div className="h-screen" />
       <CustomCursor />
-      <Amenities />
     </main>
   );
 }

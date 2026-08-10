@@ -15,6 +15,7 @@ export default function CustomCursor() {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const dot = root.current;
       const label = dot.querySelector<HTMLElement>(".js-cursorlabel")!;
+      const ring = dot.querySelector<HTMLElement>(".js-ring")!;
       const xTo = gsap.quickTo(dot, "x", { duration: 0.25, ease: "power3.out" });
       const yTo = gsap.quickTo(dot, "y", { duration: 0.25, ease: "power3.out" });
 
@@ -25,7 +26,7 @@ export default function CustomCursor() {
       const over = (e: MouseEvent) => {
         const t = (e.target as HTMLElement).closest("a, button, [data-cursor]");
         const view = (e.target as HTMLElement).closest('[data-cursor="view"]');
-        gsap.to(dot.querySelector(".js-ring"), {
+        gsap.to(ring, {
           scale: view ? 3.2 : t ? 1.8 : 1,
           duration: 0.35,
           ease: "power3.out",
