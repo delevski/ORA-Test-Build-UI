@@ -48,8 +48,13 @@ body {
 }
 
 /* text mask reveal building block */
-.mask-line { display: block; overflow: hidden; }
-.mask-line > span { display: inline-block; will-change: transform; }
+/* wrapped in @layer base so a co-applied Tailwind utility (e.g. `inline-block`,
+   used by CinematicScene to let per-word mask-lines wrap like normal text)
+   can win the cascade — unlayered rules always beat layered ones otherwise. */
+@layer base {
+  .mask-line { display: block; overflow: hidden; }
+  .mask-line > span { display: inline-block; will-change: transform; }
+}
 
 /* Lenis recommended styles */
 html.lenis, html.lenis body { height: auto; }
