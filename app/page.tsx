@@ -5,6 +5,7 @@ import CinematicScene from "@/components/cinematic-scene/CinematicScene";
 import { PlantSilhouette, RailingSilhouette } from "@/components/cinematic-scene/foregrounds";
 import Stats from "@/components/stats/Stats";
 import WhySection from "@/components/why-section/WhySection";
+import ResidenceGallery from "@/components/residence-gallery/ResidenceGallery";
 import { IMAGES } from "@/lib/images";
 
 export default function Home() {
@@ -35,6 +36,7 @@ export default function Home() {
       />
       <Stats />
       <WhySection />
+      <ResidenceGallery />
       <div className="h-screen" />
     </main>
   );
