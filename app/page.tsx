@@ -7,6 +7,8 @@ import Stats from "@/components/stats/Stats";
 import WhySection from "@/components/why-section/WhySection";
 import ResidenceGallery from "@/components/residence-gallery/ResidenceGallery";
 import HorizontalStrip from "@/components/residence-gallery/HorizontalStrip";
+import BuildingMarquee from "@/components/building-marquee/BuildingMarquee";
+import RibbonMarquee from "@/components/ribbon-marquee/RibbonMarquee";
 import { IMAGES } from "@/lib/images";
 
 export default function Home() {
@@ -39,6 +41,8 @@ export default function Home() {
       <WhySection />
       <ResidenceGallery />
       <HorizontalStrip />
+      <BuildingMarquee />
+      <RibbonMarquee />
       <div className="h-screen" />
     </main>
   );
